@@ -1,0 +1,69 @@
+function enviarWhatsApp() {
+  let filaInicio = 1;
+  let filaFin = 30; 
+  let libro = SpreadsheetApp.getActiveSpreadsheet();
+  let hoja = libro.getActiveSheet();
+  let enlaces = hoja.getRange(filaInicio, 3, filaFin).getValues();
+  Logger.log(enlaces)
+  let salto = 0
+  
+  function abrirCelda () {
+        enlaces.forEach(enlace=>{
+        salto += 1
+        openUrl(enlaces[salto])
+        Utilities.sleep(6000)
+        if (salto === 30){
+            salto = 0 
+            filaFin +=30
+            filaInicio +=30 
+        }
+      })
+    }
+
+    return abrirCelda; 
+}
+ 
+function ultimaFila (col, hoja) {
+  const ultimaFila = hoja.getMaxRows()
+  const rango = hoja.getRange(1, col, hoja.getMaxRows()).getValues();
+  for (i = ultimaFila-1; i > 0; i--) {
+      //logeger.log(datos)
+      if (rango[i][0]) {
+        return i+1
+      }
+  }
+}
+ 
+function openUrl( url ) {
+ 
+ 
+  /*
+  +'window.close = function(){window.setTimeout(function(){google.script.host.close()},9)};'
+  +'var a = document.createElement("a"); a.href="'+url+'"; a.target="_blank";'
+  +'if(document.createEvent){'
+  +'  var event=document.createEvent("MouseEvents");'
+  +'  if(navigator.userAgent.toLowerCase().indexOf("firefox")>-1){window.document.body.append(a)}'                          
+  +'  event.initEvent("click",true,true); a.dispatchEvent(event);'
+  +'}else{ a.click() }'
+  +'close();'
+  +'</script>'
+  // Offer URL as clickable link in case above code fails.
+  +'<body style="word-break:break-word;font-family:sans-serif;">Failed to open automatically. <a href="'+url+'" target="_blank" onclick="window.close()">Click here to proceed</a>.</body>'
+  +'<script>google.script.host.setHeight(40);google.script.host.setWidth(410)'
+  */
+ 
+  var script = 'var clickEvent = new MouseEvent("click", {'
+  +'"view": window,'
+  +'"bubbles": true,'
+  +'"cancelable": false'
+  +'});';
+ 
+var htmlOutput = HtmlService
+    .createHtmlOutput('<p><a id="enlace" target="_blank" href="'+url+'">Abrir</p><script>'+script+' document.getElementById("enlace").dispatchEvent(clickEvent)</script>')
+    .setWidth(250)
+    .setHeight(300);
+ 
+  SpreadsheetApp.getUi().showModalDialog( htmlOutput, "Opening ..." );
+};
+
+enviarWhatsApp(); 
